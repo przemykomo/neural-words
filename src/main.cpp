@@ -5,9 +5,11 @@
 #include <array>
 #include <fstream>
 #include <vector>
+#include <cstdio>
 
 #include "genann.h"
 
+//TODO: move that to other compilation unit
 constexpr std::size_t maxLength{24}; //max word length
 constexpr std::size_t possibleLetters{26}; //english alphabet
 
@@ -21,7 +23,7 @@ std::array<double, maxLength * possibleLetters> convertToInputs(const char* text
         }
 
         if(text[i] >= 'a' && text[i] <= 'z') {
-        data[i * possibleLetters + text[i] - 'a'] = 1.0;
+            data[i * possibleLetters + text[i] - 'a'] = 1.0;
         } else {
             std::cout << "Invalid char: " << text[i] << ' ' << static_cast<int>(text[i]) << '\n';
         }
@@ -83,6 +85,10 @@ int main(int argc, char *argv[]) {
     std::cout << "Word \"" << word << "\" is " << *genann_run(ann, convertToInputs(word, 4).data()) << " positive.\n";
     std::cout << "Word \"" << word2 << "\" is " << *genann_run(ann, convertToInputs(word2, 8).data()) << " positive.\n";
     std::cout << "Word \"" << word3 << "\" is " << *genann_run(ann, convertToInputs(word3, 8).data()) << " positive.\n";
+
+    std::FILE* file = std::fopen("network.ann", "w");
+    genann_write(ann, file);
+    std::fclose(file);
 
     genann_free(ann);
     return 0;
