@@ -1,92 +1,54 @@
-#include <time.h>
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
-#include <array>
-#include <fstream>
 #include <vector>
 #include <cstdio>
-
+#include "convert.hpp"
+#include "read_words.hpp"
 #include "genann.h"
-
-//TODO: move that to other compilation unit
-constexpr std::size_t maxLength{24}; //max word length
-constexpr std::size_t possibleLetters{26}; //english alphabet
-
-// convert text to data which we can give neural network
-std::array<double, maxLength * possibleLetters> convertToInputs(const char* text, int length)  {
-    std::array<double, maxLength * possibleLetters> data{};
-    
-    for(int i{0}; i < length; ++i) {
-        if(text[i] == ' ' || text[i] == '-') {
-            continue;
-        }
-
-        if(text[i] >= 'a' && text[i] <= 'z') {
-            data[i * possibleLetters + text[i] - 'a'] = 1.0;
-        } else {
-            std::cout << "Invalid char: " << text[i] << ' ' << static_cast<int>(text[i]) << '\n';
-        }
-    }
-    
-    return data;
-}
+#include <thread>
+#include <functional>
+#include "learn.hpp"
 
 int main(int argc, char *argv[]) {
+
+    if (argc <= 1) {
+        if (argv[0]) {
+            std::cout << "Usage: " << argv[0] << " <output file>\n";
+        } else {
+            std::cout << "Usage: <program> <output file>\n";
+        }
+        return 0;
+    }
+
+
     std::srand(std::time(0));
 
     genann* ann{ genann_init(maxLength * possibleLetters, 3, 3, 1) };
 
-    double good{1.0};
-    double bad{0.0};
+    std::vector<std::string> positiveWords{ readAllWords("assets/positive") };
+    std::vector<std::string> negativeWords{ readAllWords("assets/negative") };
 
-    std::vector<std::string> positiveWords{};
-    std::vector<std::string> negativeWords{};
+    std::thread thread1(learn, ann, std::ref(positiveWords), std::ref(negativeWords), 500);
+    std::thread thread2(learn, ann, std::ref(positiveWords), std::ref(negativeWords), 500);
 
-    {
-        std::ifstream positive("assets/positive");
-        
-        if(!positive) {
-            std::cout << "Can't open positive file!\n";
-            return 1;
-        }
-
-        std::string line;
-        while(std::getline(positive, line)) {
-            positiveWords.push_back(line);
-        }
-    }
-
-    {
-        std::ifstream negative("assets/negative");
-
-        if(!negative) {
-            std::cout << "Can't open negative file!\n";
-            return 1;
-        }
-
-        std::string line;
-        while(std::getline(negative, line)) {
-            negativeWords.push_back(line);
-        }
-    }
-
-    for(int i{}; i < (positiveWords.size() + negativeWords.size()) * 1000; ++i) {
-        std::string word{positiveWords[std::rand() % positiveWords.size()]};
-        genann_train(ann, convertToInputs(word.c_str(), word.size()).data(), &good, 3);
-        word = negativeWords[std::rand() % negativeWords.size()];
-        genann_train(ann, convertToInputs(word.c_str(), word.size()).data(), &bad, 3);
-    }
+    thread1.join();
+    thread2.join();
 
     //Testing:
     const char* word{"good"};
     const char* word2{"negative"};
     const char* word3{"positive"};
+    const char* word4{"bad"};
+    const char* word5{"yay"};
     std::cout << "Word \"" << word << "\" is " << *genann_run(ann, convertToInputs(word, 4).data()) << " positive.\n";
     std::cout << "Word \"" << word2 << "\" is " << *genann_run(ann, convertToInputs(word2, 8).data()) << " positive.\n";
     std::cout << "Word \"" << word3 << "\" is " << *genann_run(ann, convertToInputs(word3, 8).data()) << " positive.\n";
+    std::cout << "Word \"" << word4 << "\" is " << *genann_run(ann, convertToInputs(word4, 3).data()) << " positive.\n";
+    std::cout << "Word \"" << word5 << "\" is " << *genann_run(ann, convertToInputs(word5, 3).data()) << " positive.\n";
 
-    std::FILE* file = std::fopen("network.ann", "w");
+
+    std::FILE* file = std::fopen(argv[1], "w");
     genann_write(ann, file);
     std::fclose(file);
 
