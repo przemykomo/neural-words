@@ -12,10 +12,10 @@ std::vector<std::string> readAllWords(std::string file) {
 
     std::string line;
     while (std::getline(fileStream, line)) {
-        words.push_back(line);
+        words.emplace_back(std::move(line));
     }
 
     words.shrink_to_fit();
-    return std::move(words);
+	return words;
 }
 
