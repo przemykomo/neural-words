@@ -18,7 +18,6 @@ void learn(genann* ann, std::vector<std::string> &positiveWords, std::vector<std
         genann_train(ann, convertToInputs(learningWord.c_str(), learningWord.size()).data(), &good, 3);
         
         learningWord = negativeWords[negDis(gen)];
-        //let's try with higher learning rate for negative words because program is braver on positive words more than on negative
-        genann_train(ann, convertToInputs(learningWord.c_str(), learningWord.size()).data(), &bad, 7);
+        genann_train(ann, convertToInputs(learningWord.c_str(), learningWord.size()).data(), &bad, 3);
     }
 }
