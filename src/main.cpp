@@ -24,16 +24,18 @@ int main(int argc, char *argv[]) {
 
     std::srand(std::time(0));
 
-    genann* ann{ genann_init(maxLength * possibleLetters, 3, 3, 1) };
+    //                       inputs,         hidden_layers, neurons_per_hidden_layer, outputs
+    genann* ann{ genann_init(networkEntries, 1,             3,                        1) };
 
-    std::vector<std::string> positiveWords{ readAllWords("assets/positive") };
-    std::vector<std::string> negativeWords{ readAllWords("assets/negative") };
+    // last argument is initial vector capacity so I give current dataset size (in lines)
+    std::vector<std::string> positiveWords{ readAllWords("assets/positive", 2005) };
+    std::vector<std::string> negativeWords{ readAllWords("assets/negative", 4782) };
 
     std::thread thread1(learn, ann, std::ref(positiveWords), std::ref(negativeWords), 500);
-    std::thread thread2(learn, ann, std::ref(positiveWords), std::ref(negativeWords), 500);
+    //std::thread thread2(learn, ann, std::ref(positiveWords), std::ref(negativeWords), 500);
 
     thread1.join();
-    thread2.join();
+    //thread2.join();
 
     //Testing:
     const char* word{"good"};

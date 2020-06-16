@@ -2,9 +2,10 @@
 #include <utility>
 #include <fstream>
 
-
-std::vector<std::string> readAllWords(std::string file) {
+std::vector<std::string> readAllWords(std::string file, int reserveCapacity) {
     std::vector<std::string> words{};
+    words.reserve(reserveCapacity);
+
     std::ifstream fileStream(file);
     if (!fileStream) {
         throw std::runtime_error("Cannot open file " + file);

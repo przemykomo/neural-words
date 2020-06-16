@@ -1,8 +1,9 @@
 #include "convert.hpp"
 #include <iostream>
+#include <utility>
 
-std::array<double, maxLength * possibleLetters> convertToInputs(const char* text, int length)  {
-    std::array<double, maxLength * possibleLetters> data{};
+std::array<double, networkEntries> convertToInputs(const char* text, int length)  {
+    std::array<double, networkEntries> data{};
     
     for(int i{0}; i < length; ++i) {
         if(text[i] == ' ' || text[i] == '-') {
@@ -16,6 +17,6 @@ std::array<double, maxLength * possibleLetters> convertToInputs(const char* text
         }
     }
     
-    return data;
+    return std::move(data);
 }
 
