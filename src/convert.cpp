@@ -17,6 +17,6 @@ std::array<double, networkEntries> convertToInputs(const char* text, int length)
         }
     }
     
-    return std::move(data);
+    return data; // I'd move it but idk
 }
 
