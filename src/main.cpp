@@ -1,6 +1,8 @@
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
+#include <ostream>
+#include <string>
 #include <vector>
 #include <cstdio>
 #include "convert.hpp"
@@ -9,6 +11,13 @@
 #include <thread>
 #include <functional>
 #include "learn.hpp"
+
+void printNetworkGuess(std::ostream& ostream, genann* ann, const std::string& word) {
+	// Does this ptr need to be destroyed?
+	const double* result = genann_run(ann, convertToInputs(word.c_str(), word.length()).data());
+
+	ostream << "Word \"" << word << "\" is " << result[0] << " positive." << std::endl;
+}
 
 int main(int argc, char *argv[]) {
 
@@ -36,17 +45,11 @@ int main(int argc, char *argv[]) {
     thread1.join();
 
     //Testing:
-    const char* word{"good"};
-    const char* word2{"negative"};
-    const char* word3{"positive"};
-    const char* word4{"bad"};
-    const char* word5{"yay"};
-    std::cout << "Word \"" << word << "\" is " << *genann_run(ann, convertToInputs(word, 4).data()) << " positive.\n";
-    std::cout << "Word \"" << word2 << "\" is " << *genann_run(ann, convertToInputs(word2, 8).data()) << " positive.\n";
-    std::cout << "Word \"" << word3 << "\" is " << *genann_run(ann, convertToInputs(word3, 8).data()) << " positive.\n";
-    std::cout << "Word \"" << word4 << "\" is " << *genann_run(ann, convertToInputs(word4, 3).data()) << " positive.\n";
-    std::cout << "Word \"" << word5 << "\" is " << *genann_run(ann, convertToInputs(word5, 3).data()) << " positive.\n";
-
+	printNetworkGuess(std::cout, ann, "good");
+	printNetworkGuess(std::cout, ann, "negative");
+	printNetworkGuess(std::cout, ann, "positive");
+	printNetworkGuess(std::cout, ann, "bad");
+	printNetworkGuess(std::cout, ann, "yay");
 
     std::FILE* file = std::fopen(argv[1], "w");
     genann_write(ann, file);
