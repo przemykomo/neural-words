@@ -32,10 +32,8 @@ int main(int argc, char *argv[]) {
     std::vector<std::string> negativeWords{ readAllWords("assets/negative", 4782) };
 
     std::thread thread1(learn, ann, std::ref(positiveWords), std::ref(negativeWords), 1000);
-    //std::thread thread2(learn, ann, std::ref(positiveWords), std::ref(negativeWords), 500);
 
     thread1.join();
-    //thread2.join();
 
     //Testing:
     const char* word{"good"};

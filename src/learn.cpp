@@ -14,10 +14,10 @@ void learn(genann* ann, std::vector<std::string> &positiveWords, std::vector<std
     std::uniform_int_distribution<int> negDis{0, int(negativeWords.size() - 1)};
 
     for(int i{}; i < repetitions; ++i) {
-		std::string& learningWord = positiveWords[posDis(gen)];
-        genann_train(ann, convertToInputs(learningWord.c_str(), learningWord.size()).data(), &good, 3);
+        std::string &goodWord = positiveWords[posDis(gen)];
+        genann_train(ann, convertToInputs(goodWord.c_str(), goodWord.size()).data(), &good, 3);
         
-        learningWord = negativeWords[negDis(gen)];
-        genann_train(ann, convertToInputs(learningWord.c_str(), learningWord.size()).data(), &bad, 3);
+        std::string &badWord = negativeWords[negDis(gen)];
+        genann_train(ann, convertToInputs(badWord.c_str(), badWord.size()).data(), &bad, 3);
     }
 }
